@@ -1,0 +1,72 @@
+{
+  "game_id": "mario_deluxe",
+  "description": "Monotonic progress-first rewards for Mario Deluxe",
+  "clip_min": -50.0,
+  "clip_max": 50.0,
+  "rules": [
+    {
+      "id": "living_cost",
+      "type": "constant",
+      "enabled": true,
+      "value": -0.05,
+      "note": "Per-step cost so lingering is expensive"
+    },
+    {
+      "id": "progress",
+      "type": "monotonic_progress",
+      "enabled": true,
+      "signal": "LEVEL_PROGRESS",
+      "scale": 12.0,
+      "new_best_bonus": 4.0,
+      "backward_penalty": -4.0,
+      "no_forward_penalty": -0.2,
+      "oscillation_penalty": -0.5,
+      "oscillation_window": 6,
+      "note": "Reward only new furthest progress; punish retreat / wiggle"
+    },
+    {
+      "id": "stuck",
+      "type": "stuck",
+      "enabled": true,
+      "signal": "MARIO_MOTION",
+      "penalty": -0.1,
+      "grace_steps": 100,
+      "limit_steps": 800,
+      "truncate": true,
+      "note": "Penalise and truncate when motion marker freezes"
+    },
+    {
+      "id": "flag",
+      "type": "equals_terminal",
+      "enabled": true,
+      "signal": "FLAG_STATE",
+      "equals": 80,
+      "reward": 200.0,
+      "terminal": true,
+      "replace_reward": false,
+      "note": "Level complete when flag marker hits 80"
+    },
+    {
+      "id": "death",
+      "type": "decrement_terminal",
+      "enabled": true,
+      "signal": "LIVES_REMAINING",
+      "reward": -40.0,
+      "terminal": true,
+      "replace_reward": true,
+      "note": "Life lost when lives counter drops"
+    },
+    {
+      "id": "timeout",
+      "type": "timeout",
+      "enabled": true,
+      "base_steps": 2500,
+      "max_steps": 12000,
+      "progress_signal": "LEVEL_PROGRESS",
+      "penalty": -20.0,
+      "truncate": true,
+      "also_signal": "TIMER_CRITICAL",
+      "note": "Progressive step budget plus in-game timer critical"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "id": "mario_deluxe",
+  "name": "Super Mario Bros Deluxe",
+  "emulator": "pyboy",
+  "rom": "rom/Super_Mario_Bros_Delux.gbc",
+  "states_dir": "states",
+  "memory_file": "memory.json",
+  "rewards_file": "rewards.json",
+  "obs": {
+    "width": 80,
+    "height": 64,
+    "crop_top": 16
+  },
+  "wait_frames": 1,
+  "actions": [
+    {"id": "run_jump", "buttons": ["a", "right"]},
+    {"id": "right", "buttons": ["right"]},
+    {"id": "jump", "buttons": ["a"]},
+    {"id": "noop", "buttons": []},
+    {"id": "left", "buttons": ["left"]},
+    {"id": "left_jump", "buttons": ["a", "left"]}
+  ]
+}

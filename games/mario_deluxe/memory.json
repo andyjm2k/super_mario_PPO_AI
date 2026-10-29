@@ -1,0 +1,90 @@
+{
+  "game_id": "mario_deluxe",
+  "description": "WRAM / VRAM addresses for Super Mario Bros Deluxe (GBC)",
+  "defaults": {
+    "tile_digit_base": 208,
+    "max_progress_tile": 12
+  },
+  "signals": {
+    "SCORE_DIGIT_0": {
+      "address": "0xC103",
+      "decode": "raw",
+      "note": "HUD score digit tile 0"
+    },
+    "SCORE_DIGIT_1": {
+      "address": "0xC104",
+      "decode": "raw",
+      "note": "HUD score digit tile 1"
+    },
+    "SCORE_DIGIT_2": {
+      "address": "0xC105",
+      "decode": "raw",
+      "note": "HUD score digit tile 2"
+    },
+    "SCORE_DIGIT_3": {
+      "address": "0xC106",
+      "decode": "raw",
+      "note": "HUD score digit tile 3"
+    },
+    "SCORE_DIGIT_4": {
+      "address": "0xC107",
+      "decode": "raw",
+      "note": "HUD score digit tile 4"
+    },
+    "SCORE": {
+      "addresses": ["0xC103", "0xC104", "0xC105", "0xC106", "0xC107"],
+      "decode": "digit_tiles_int",
+      "tile_digit_base": 208,
+      "max_digit": 12,
+      "note": "Assembled HUD score from five digit tiles"
+    },
+    "LEVEL_PROGRESS": {
+      "address": "0xC24B",
+      "decode": "tile_percent",
+      "tile_digit_base": 208,
+      "max_progress_tile": 12,
+      "note": "Level progress as 0-100 percent"
+    },
+    "LEVEL_PROGRESS_RAW": {
+      "address": "0xC24B",
+      "decode": "raw",
+      "note": "Raw progress tile byte"
+    },
+    "MARIO_MOTION": {
+      "address": "0xC175",
+      "decode": "raw",
+      "note": "Motion / position marker for stuck detection"
+    },
+    "LIVES_REMAINING": {
+      "address": "0xC17F",
+      "decode": "raw",
+      "note": "Remaining lives counter (death = decrement)"
+    },
+    "FLAG_STATE": {
+      "address": "0xC02E",
+      "decode": "raw",
+      "note": "Flag / level-complete marker"
+    },
+    "TIMER_DIGIT_0": {
+      "address": "0x9811",
+      "decode": "raw",
+      "note": "On-screen timer hundreds digit tile"
+    },
+    "TIMER_DIGIT_1": {
+      "address": "0x9812",
+      "decode": "raw",
+      "note": "On-screen timer tens digit tile"
+    },
+    "TIMER_DIGIT_2": {
+      "address": "0x9813",
+      "decode": "raw",
+      "note": "On-screen timer ones digit tile"
+    },
+    "TIMER_CRITICAL": {
+      "addresses": ["0x9811", "0x9812", "0x9813"],
+      "decode": "timer_critical",
+      "tile_digit_base": 208,
+      "note": "1.0 when on-screen timer shows 001"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+stable-baselines3==2.9.0
+sb3-contrib==2.9.0
+# Keep 2.6.x: existing .state files are incompatible with PyBoy 2.7 save format.
+pyboy==2.6.0
+# Optional GBA engine (selected per pack via game.json "emulator": "pyboy_advance").
+pyboy-advance>=1.0.1
+# mGBA ("emulator": "mgba") is not installed by pip on Windows.
+# Build hanzi/libmgba-py (mGBA 0.10.2) and copy build\win64\mgba into this venv.
+# Steps: games/street_fighter3/README.md. Street Fighter Alpha 3 uses that backend.
+gymnasium>=0.29.1
+torch>=2.8
+opencv-python
+numpy>=2,<2.3
+Pillow
+mss

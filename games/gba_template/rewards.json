@@ -1,0 +1,54 @@
+{
+  "game_id": "gba_template",
+  "description": "Starter GBA rewards — edit after filling memory.json",
+  "clip_min": -50.0,
+  "clip_max": 50.0,
+  "rules": [
+    {
+      "id": "living_cost",
+      "type": "constant",
+      "enabled": true,
+      "value": -0.05
+    },
+    {
+      "id": "progress",
+      "type": "monotonic_progress",
+      "enabled": true,
+      "signal": "PROGRESS",
+      "scale": 1.0,
+      "new_best_bonus": 1.0,
+      "backward_penalty": -1.0,
+      "no_forward_penalty": -0.1,
+      "oscillation_penalty": -0.2,
+      "oscillation_window": 6
+    },
+    {
+      "id": "death",
+      "type": "decrement_terminal",
+      "enabled": true,
+      "signal": "LIVES",
+      "reward": -40.0,
+      "terminal": true,
+      "replace_reward": true
+    },
+    {
+      "id": "stuck",
+      "type": "stuck",
+      "enabled": true,
+      "signal": "MOTION",
+      "penalty": -0.1,
+      "grace_steps": 100,
+      "limit_steps": 800,
+      "truncate": true
+    },
+    {
+      "id": "timeout",
+      "type": "timeout",
+      "enabled": true,
+      "base_steps": 2500,
+      "max_steps": 2500,
+      "penalty": -20.0,
+      "truncate": true
+    }
+  ]
+}

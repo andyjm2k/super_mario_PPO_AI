@@ -1,0 +1,21 @@
+{
+  "game_id": "gba_template",
+  "description": "Placeholder GBA memory map — replace addresses for your title",
+  "signals": {
+    "PROGRESS": {
+      "address": "0x02000000",
+      "decode": "raw",
+      "note": "Replace with a real EWRAM progress byte"
+    },
+    "LIVES": {
+      "address": "0x02000001",
+      "decode": "raw",
+      "note": "Replace with a lives / HP counter (use decrement_terminal)"
+    },
+    "MOTION": {
+      "address": "0x02000002",
+      "decode": "raw",
+      "note": "Replace with a position / motion marker for stuck detection"
+    }
+  }
+}

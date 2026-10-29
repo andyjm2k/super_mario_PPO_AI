@@ -1,0 +1,88 @@
+{
+  "game_id": "street_fighter3",
+  "description": "Arcade-match shaping: reward damage dealt, punish damage taken, KO terminals. Uses Opp1 as the primary foe (standard 1v1).",
+  "clip_min": -50.0,
+  "clip_max": 50.0,
+  "rules": [
+    {
+      "id": "living_cost",
+      "type": "constant",
+      "enabled": true,
+      "value": -0.01,
+      "note": "Small per-step cost so stalling is mildly discouraged"
+    },
+    {
+      "id": "damage_dealt",
+      "type": "signal_delta",
+      "enabled": true,
+      "signal": "OPP1_HEALTH",
+      "decrease_scale": 0.35,
+      "increase_scale": 0.0,
+      "note": "Reward each point of Opp1 health lost (hits / chip)"
+    },
+    {
+      "id": "damage_taken",
+      "type": "signal_delta",
+      "enabled": true,
+      "signal": "P1_HEALTH",
+      "decrease_scale": -0.4,
+      "increase_scale": 0.0,
+      "note": "Penalise each point of P1 health lost"
+    },
+    {
+      "id": "ism_gain",
+      "type": "signal_delta",
+      "enabled": true,
+      "signal": "P1_ISM",
+      "decrease_scale": 0.0,
+      "increase_scale": 0.05,
+      "note": "Small bonus when the ISM / super gauge fills"
+    },
+    {
+      "id": "ko_win",
+      "type": "equals_terminal",
+      "enabled": true,
+      "signal": "OPP1_HEALTH",
+      "equals": 0,
+      "reward": 80.0,
+      "terminal": true,
+      "replace_reward": false,
+      "min_episode_length": 90,
+      "note": "Win when Opp1 HP hits 0 (grace avoids menu false positives)"
+    },
+    {
+      "id": "ko_loss",
+      "type": "equals_terminal",
+      "enabled": true,
+      "signal": "P1_HEALTH",
+      "equals": 0,
+      "reward": -60.0,
+      "terminal": true,
+      "replace_reward": true,
+      "min_episode_length": 90,
+      "note": "Lose when P1 HP hits 0 (grace avoids menu false positives)"
+    },
+    {
+      "id": "round_won_flag",
+      "type": "equals_terminal",
+      "enabled": false,
+      "signal": "P1_ROUND_WON",
+      "equals": 1,
+      "reward": 40.0,
+      "terminal": true,
+      "replace_reward": false,
+      "min_episode_length": 90,
+      "note": "Optional alt win signal from round-won flag; disabled by default"
+    },
+    {
+      "id": "timeout",
+      "type": "timeout",
+      "enabled": true,
+      "base_steps": 4000,
+      "max_steps": 4000,
+      "penalty": -15.0,
+      "truncate": true,
+      "note": "Cap long matches / stuck menus (~4000 agent steps)"
+    }
+  ]
+}

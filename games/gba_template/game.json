@@ -1,0 +1,32 @@
+{
+  "id": "gba_template",
+  "name": "GBA Template (PyBoyAdvance)",
+  "emulator": "pyboy_advance",
+  "rom": "rom/game.gba",
+  "bios": "rom/gba_bios.bin",
+  "skip_bios": true,
+  "allow_boot_start": true,
+  "state_extensions": [".pba_state"],
+  "states_dir": "states",
+  "memory_file": "memory.json",
+  "rewards_file": "rewards.json",
+  "obs": {
+    "width": 120,
+    "height": 80,
+    "crop_top": 0
+  },
+  "wait_frames": 1,
+  "actions": [
+    {"id": "a", "buttons": ["a"]},
+    {"id": "b", "buttons": ["b"]},
+    {"id": "right", "buttons": ["right"]},
+    {"id": "left", "buttons": ["left"]},
+    {"id": "up", "buttons": ["up"]},
+    {"id": "down", "buttons": ["down"]},
+    {"id": "a_right", "buttons": ["a", "right"]},
+    {"id": "noop", "buttons": []},
+    {"id": "start", "buttons": ["start"]},
+    {"id": "l", "buttons": ["l"]},
+    {"id": "r", "buttons": ["r"]}
+  ]
+}

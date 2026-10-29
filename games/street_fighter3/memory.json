@@ -1,0 +1,61 @@
+{
+  "game_id": "street_fighter3",
+  "description": "Street Fighter Alpha 3 (USA) GBA — addresses from CodeBreaker / CMGSCC (Slateman SFZ3U FAQ). Note: GameFAQs FAQ #13943 is the Dreamcast VMU guide, not GBA RAM.",
+  "signals": {
+    "P1_HEALTH": {
+      "address": "0x02000818",
+      "decode": "raw",
+      "note": "Player 1 health (full ~= 0x90 / 144). CodeBreaker: 32000818"
+    },
+    "P1_ISM": {
+      "address": "0x0200090E",
+      "decode": "raw",
+      "note": "Player 1 ISM / super gauge (full ~= 0x90). CodeBreaker: 3200090E"
+    },
+    "P1_ROUND_WON": {
+      "address": "0x02000916",
+      "decode": "raw",
+      "note": "Round-won flag (set to 1 by 'First Round Won' codes). CodeBreaker: 32000916"
+    },
+    "P1_ROUND_STATE": {
+      "address": "0x0200091A",
+      "decode": "raw",
+      "note": "Companion round-state byte (codes write 0x41). CodeBreaker: 3200091A"
+    },
+    "P1_STANCE": {
+      "address": "0x020007B4",
+      "decode": "raw",
+      "note": "Stance / solid-stance related (CodeBreaker condition 720007B4)"
+    },
+    "OPP1_HEALTH": {
+      "address": "0x02004428",
+      "decode": "raw",
+      "note": "Opponent 1 (or Dramatic-mode partner) health. CodeBreaker: 32004428"
+    },
+    "OPP1_ISM": {
+      "address": "0x0200451E",
+      "decode": "raw",
+      "note": "Opponent 1 ISM gauge. CodeBreaker: 3200451E"
+    },
+    "OPP2_HEALTH": {
+      "address": "0x02000268",
+      "decode": "raw",
+      "note": "Opponent 2 health (Dramatic / multi-opponent). CodeBreaker: 32000268"
+    },
+    "OPP2_ISM": {
+      "address": "0x0200035E",
+      "decode": "raw",
+      "note": "Opponent 2 ISM gauge. CodeBreaker: 3200035E"
+    },
+    "UNLOCK_MODES": {
+      "address": "0x020064E8",
+      "decode": "raw",
+      "note": "Unlock-all-modes byte (cheat writes 0xFF). CodeBreaker: 320064E8"
+    },
+    "UNLOCK_FIGHTERS": {
+      "address": "0x020064E9",
+      "decode": "raw",
+      "note": "Unlock-all-fighters byte (cheat writes 0xFF). CodeBreaker: 320064E9"
+    }
+  }
+}
