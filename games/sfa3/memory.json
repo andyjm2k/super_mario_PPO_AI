@@ -1,0 +1,31 @@
+{
+  "game_id": "sfa3",
+  "description": "Street Fighter Alpha 3 (CPS2, MAME sfa3). Player records are 0x400 apart from 0xFF8400. Health is a big-endian word; MAME read_u16 returns the number and the bank stores it little-endian. Full bar is 144 (0x90). Round clock is a byte at 0xFF8109 (90 at round start, 0 on menus).",
+  "signals": {
+    "P1_HEALTH": {
+      "address": "0xFF8450",
+      "decode": "u16",
+      "note": "Player 1 health word at player base + 0x50. Full bar is 144."
+    },
+    "P2_HEALTH": {
+      "address": "0xFF8850",
+      "decode": "u16",
+      "note": "Player 2 health word at 0xFF8800 + 0x50. Full bar is 144."
+    },
+    "ROUND_CLOCK": {
+      "address": "0xFF8109",
+      "decode": "raw",
+      "note": "Round timer. 0x5A is 90 seconds. 0 outside a round, so a 0 health bar on the title screen is not a KO."
+    },
+    "P1_GAUGE": {
+      "address": "0xFF851F",
+      "decode": "raw",
+      "note": "Player 1 POWER gauge byte at base + 0x11F. 0x90 is MAX."
+    },
+    "P2_GAUGE": {
+      "address": "0xFF891F",
+      "decode": "raw",
+      "note": "Player 2 POWER gauge byte. 0x90 is MAX."
+    }
+  }
+}

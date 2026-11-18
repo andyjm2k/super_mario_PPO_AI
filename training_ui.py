@@ -6,7 +6,7 @@ import threading
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
-from gb_theme import GB_DARKEST, GB_LIGHTEST, apply_gb_theme
+from gb_theme import GB_DARKEST, GB_FIELD, GB_LIGHT, apply_gb_theme, build_marquee
 from gpu_tune import suggest_gpu_hyperparams, validate_batch_divides_buffer
 from model_architecture import default_policy_for_algorithm
 from observation_pipeline import resolve_frame_stack
@@ -31,7 +31,7 @@ class TrainingDashboard:
         self.root.title(f"{APP_NAME} // TRAIN")
         # Start with a taller window so the telemetry board fits.
         self.root.geometry("1180x900")
-        # Paint the chassis background dark olive.
+        # Paint the cabinet black.
         self.root.configure(bg=GB_DARKEST)
         # Multiprocessing queue used to stream frames, stats, and events.
         self.frame_queue = mp.Queue(maxsize=64)
@@ -43,7 +43,7 @@ class TrainingDashboard:
         self.stop_event = threading.Event()
         # PhotoImage references must be kept alive for Tk.
         self.photo_refs = []
-        # Apply the Game Boy ttk theme before building widgets.
+        # Apply the arcade cabinet theme before building widgets.
         apply_gb_theme(self.root)
         # Build all widgets.
         self._build_layout()
@@ -58,20 +58,14 @@ class TrainingDashboard:
         main = ttk.Frame(self.root, style="GB.TFrame", padding=12)
         # Stretch the main frame to fill the window.
         main.pack(fill=tk.BOTH, expand=True)
-        # Banner row across the top.
-        banner = ttk.Frame(main, style="GB.TFrame")
-        # Pack the banner full width.
+        # Graffiti marquee across the top.
+        banner = build_marquee(
+            main,
+            "DEEP TRAINER",
+            "INSERT COIN  ·  LINK CABLE  ·  SELF PLAY",
+        )
+        # Pack the marquee full width.
         banner.pack(fill=tk.X, pady=(0, 10))
-        # Big pixel-ish title.
-        ttk.Label(
-            banner, text=f"★ {APP_NAME.upper()} ★", style="Title.TLabel"
-        ).pack()
-        # Subtitle describing the booth.
-        ttk.Label(
-            banner,
-            text="GENERIC PYBOY RL  ·  PER-GAME PACKS  ·  DECLARATIVE REWARDS",
-            style="Sub.TLabel",
-        ).pack()
         # Body holds config (left) and screens (right).
         body = ttk.Frame(main, style="GB.TFrame")
         # Pack the body so it expands.
@@ -121,6 +115,8 @@ class TrainingDashboard:
             "vec_env_type": tk.StringVar(value="subproc"),
             "visual_agents": tk.IntVar(value=4),
             "show_visuals": tk.BooleanVar(value=True),
+            "self_play": tk.BooleanVar(value=False),
+            "marl": tk.BooleanVar(value=False),
             "device": tk.StringVar(value="auto"),
             "resume_path": tk.StringVar(value=""),
             "checkpoint_dir": tk.StringVar(value="./train/"),
@@ -179,9 +175,9 @@ class TrainingDashboard:
             right,
             height=5,
             wrap=tk.WORD,
-            bg=GB_LIGHTEST,
-            fg=GB_DARKEST,
-            insertbackground=GB_DARKEST,
+            bg=GB_FIELD,
+            fg=GB_LIGHT,
+            insertbackground=GB_LIGHT,
             font=("Courier New", 9),
             relief=tk.SOLID,
             borderwidth=4,
@@ -219,6 +215,10 @@ class TrainingDashboard:
         try:
             # Resolve the pack from disk.
             pack = load_game_pack(game_id, games_root=games_root)
+            # Arcade packs train as P1 versus P2 unless the user turns it off later.
+            if str(pack.emulator_engine).lower() in ("mame", "mametoolkit"):
+                # Both fighters learn.
+                self.vars["marl"].set(True)
             # Push pack assets into the rewards editor.
             self.reward_controller.load_from_pack(pack)
             # Update status strip with pack name + state count.
@@ -331,6 +331,8 @@ class TrainingDashboard:
             vec_env_type=self.vars["vec_env_type"].get(),
             visual_agents=int(self.vars["visual_agents"].get()),
             show_visuals=bool(self.vars["show_visuals"].get()),
+            self_play=bool(self.vars["self_play"].get()),
+            marl=bool(self.vars["marl"].get()),
             device=self.vars["device"].get(),
             resume_path=self.vars["resume_path"].get() or None,
             checkpoint_dir=self.vars["checkpoint_dir"].get(),

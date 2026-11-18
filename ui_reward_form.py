@@ -78,9 +78,10 @@ def build_reward_form(parent, controller):
         left,
         height=16,
         width=22,
-        bg="#0f380f",
-        fg="#9bbc0f",
-        selectbackground="#306230",
+        bg="#0e0718",
+        fg="#3dfff3",
+        selectbackground="#ff2bd6",
+        selectforeground="#ffe14a",
         font=("Courier New", 9),
     )
     # Pack listbox.

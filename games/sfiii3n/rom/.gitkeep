@@ -1,0 +1,2 @@
+Place sfiii3n.zip (Street Fighter III 3rd Strike, no CD) in this folder.
+MAME must be on PATH. The trainer reads health from the MAMEToolkit RAM map.

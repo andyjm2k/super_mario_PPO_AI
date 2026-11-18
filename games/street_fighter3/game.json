@@ -7,6 +7,7 @@
   "skip_bios": true,
   "allow_boot_start": true,
   "prefer_boot_start": false,
+  "link_play": true,
   "state_extensions": [".mgba_state"],
   "states_dir": "states",
   "memory_file": "memory.json",

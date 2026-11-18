@@ -7,6 +7,9 @@ pyboy-advance>=1.0.1
 # mGBA ("emulator": "mgba") is not installed by pip on Windows.
 # Build hanzi/libmgba-py (mGBA 0.10.2) and copy build\win64\mgba into this venv.
 # Steps: games/street_fighter3/README.md. Street Fighter Alpha 3 uses that backend.
+# Arcade 2-player (emulator "mame", pack sfiii3n). On Linux, pip install MAMEToolkit.
+# On Windows the harness drives the mame binary directly. Put mame on PATH and
+# copy sfiii3n.zip into games/sfiii3n/rom/.
 gymnasium>=0.29.1
 torch>=2.8
 opencv-python

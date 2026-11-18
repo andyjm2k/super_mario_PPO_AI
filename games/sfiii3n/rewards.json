@@ -1,0 +1,71 @@
+{
+  "game_id": "sfiii3n",
+  "description": "Street Fighter III reward wrapper: damage dealt, damage taken, round KO. RAM comes from one MAME process.",
+  "clip_min": -50.0,
+  "clip_max": 50.0,
+  "rules": [
+    {
+      "id": "living_cost",
+      "type": "constant",
+      "enabled": true,
+      "value": -0.01,
+      "note": "Small per-step cost so stalling is discouraged"
+    },
+    {
+      "id": "damage_dealt",
+      "type": "signal_delta",
+      "enabled": true,
+      "signal": "P2_HEALTH",
+      "decrease_scale": 0.35,
+      "increase_scale": 0.0,
+      "note": "Reward each point of player 2 health lost"
+    },
+    {
+      "id": "damage_taken",
+      "type": "signal_delta",
+      "enabled": true,
+      "signal": "P1_HEALTH",
+      "decrease_scale": -0.4,
+      "increase_scale": 0.0,
+      "note": "Penalise each point of player 1 health lost"
+    },
+    {
+      "id": "ko_win",
+      "type": "equals_terminal",
+      "enabled": true,
+      "signal": "P2_HEALTH",
+      "equals": 0,
+      "require_signal": "IN_FIGHT",
+      "require_min": 1,
+      "reward": 80.0,
+      "terminal": true,
+      "replace_reward": false,
+      "min_episode_length": 30,
+      "note": "Win when player 2 health hits 0 during a round"
+    },
+    {
+      "id": "ko_loss",
+      "type": "equals_terminal",
+      "enabled": true,
+      "signal": "P1_HEALTH",
+      "equals": 0,
+      "require_signal": "IN_FIGHT",
+      "require_min": 1,
+      "reward": -60.0,
+      "terminal": true,
+      "replace_reward": true,
+      "min_episode_length": 30,
+      "note": "Lose when player 1 health hits 0 during a round"
+    },
+    {
+      "id": "timeout",
+      "type": "timeout",
+      "enabled": true,
+      "base_steps": 4000,
+      "max_steps": 4000,
+      "penalty": -15.0,
+      "truncate": true,
+      "note": "Cap a stuck round"
+    }
+  ]
+}

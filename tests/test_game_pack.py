@@ -5,7 +5,6 @@ import os
 import tempfile
 import unittest
 
-from pdt.emulator import BOOT_STATE
 from pdt.game_pack import list_game_ids, load_game_pack
 from pdt.memory_bank import MemoryBank, parse_address
 from pdt.reward_engine import DeclarativeRewardEngine, RewardSpec
@@ -49,10 +48,14 @@ class TestGamePack(unittest.TestCase):
         self.assertFalse(pack.prefer_boot_start)
         # Training can still start from ROM boot before the user re-records.
         self.assertTrue(pack.allow_boot_start)
-        # Discovery ignores versus_start.pba_state.
+        # Discovery ignores versus_start.pba_state and link-pair halves.
         states = pack.discover_states()
-        # No .mgba_state yet, so the curriculum is the boot sentinel.
-        self.assertEqual(states, [BOOT_STATE])
+        # The recorded solo mGBA state is the curriculum.
+        self.assertTrue(any(path.endswith("versus_start.mgba_state") for path in states))
+        # Old PyBoyAdvance snapshots stay out.
+        self.assertFalse(any(path.endswith(".pba_state") for path in states))
+        # Link-cable halves are loaded as a pair, not as a solo start.
+        self.assertFalse(any(path.lower().endswith("_p1.mgba_state") for path in states))
 
     def test_street_fighter_actions_are_gameplay_only(self):
         # Training must not press pause or menu buttons.

@@ -5,7 +5,7 @@ import threading
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
-from gb_theme import GB_DARKEST, GB_LIGHTEST, apply_gb_theme
+from gb_theme import GB_DARKEST, GB_FIELD, GB_LIGHT, apply_gb_theme, build_marquee
 from pdt import APP_NAME
 from pdt.game_pack import default_game_id, list_game_ids
 from run_model import list_checkpoints, run_episodes
@@ -42,20 +42,14 @@ class ModelRunnerDashboard:
         main = ttk.Frame(self.root, style="GB.TFrame", padding=12)
         # Stretch the main frame to fill the window.
         main.pack(fill=tk.BOTH, expand=True)
-        # Banner row across the top.
-        banner = ttk.Frame(main, style="GB.TFrame")
-        # Pack the banner full width.
+        # Graffiti marquee across the top.
+        banner = build_marquee(
+            main,
+            "HIGH SCORE",
+            "LOAD A CHECKPOINT  ·  ROLL THE CREDITS",
+        )
+        # Pack the marquee full width.
         banner.pack(fill=tk.X, pady=(0, 10))
-        # Big pixel-ish title.
-        ttk.Label(
-            banner, text=f"★ {APP_NAME.upper()} RUNNER ★", style="Title.TLabel"
-        ).pack()
-        # Subtitle describing the booth.
-        ttk.Label(
-            banner,
-            text="LOAD A CHECKPOINT  ·  ROLL OUT TEST EPISODES",
-            style="Sub.TLabel",
-        ).pack()
         # Config panel for model selection.
         config = ttk.LabelFrame(
             main, text=" CHECKPOINT ", style="GB.TLabelframe", padding=10
@@ -221,9 +215,9 @@ class ModelRunnerDashboard:
             log_frame,
             height=18,
             wrap=tk.WORD,
-            bg=GB_LIGHTEST,
-            fg=GB_DARKEST,
-            insertbackground=GB_DARKEST,
+            bg=GB_FIELD,
+            fg=GB_LIGHT,
+            insertbackground=GB_LIGHT,
             font=("Courier New", 9),
             relief=tk.SOLID,
             borderwidth=4,

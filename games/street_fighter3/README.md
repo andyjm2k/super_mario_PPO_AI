@@ -136,3 +136,17 @@ Select **street_fighter3** in GAME, then TRAIN. With no `.mgba_state` yet,
 episodes boot the ROM (you will see the BIOS/title path, not a frozen
 `.pba_state` preview). After F5, episodes resume from the match and the
 training view follows the live framebuffer. Tune scales on the REWARDS tab.
+
+**Self-play link:** first record both sides of a link fight:
+
+```powershell
+python tools/save_mgba_state.py --game street_fighter3 --name versus_link --link
+```
+
+Left screen is player 1 (arrows, A/S, Q/W, Enter, Backspace). Right screen is
+player 2 (IJKL move, U/O = A/B, Y/P = L/R, N = Start, M = Select). On each
+GBA, open the game's link-versus mode. When the fight is running, press **F5**.
+That writes `states/versus_link_p1.mgba_state` and `states/versus_link_p2.mgba_state`.
+
+Then check **SELF-PLAY LINK** on the TRAIN tab. Training loads that pair, one
+file per GBA. Use fewer parallel envs. The live pane shows both screens.

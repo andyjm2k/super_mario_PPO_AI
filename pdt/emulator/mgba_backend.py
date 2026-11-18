@@ -121,7 +121,7 @@ def _attach_video(core):
     return image
 
 
-def _boot_core(rom_path: str, bios_path: str, skip_bios: bool):
+def _boot_core(rom_path: str, bios_path: str, skip_bios: bool, reset: bool = True):
     """Load a ROM + BIOS into a headless core and reset it."""
     # Import the core module (already verified by _require_mgba).
     import mgba.core as core_mod
@@ -138,13 +138,15 @@ def _boot_core(rom_path: str, bios_path: str, skip_bios: bool):
     # Video buffer must also exist before the first frame.
     image = _attach_video(core)
     # reset() marks the core runnable and builds the memory map.
-    reset = getattr(core, "reset", None)
+    reset_fn = getattr(core, "reset", None)
     # Required by run_frame's needs_reset decorator.
-    if not callable(reset):
+    if not callable(reset_fn):
         # Cannot tick without it.
         raise RuntimeError("mGBA core has no reset()")
-    # Boot to the post-BIOS (or BIOS) entry point.
-    reset()
+    # Link play attaches the cable before the first reset.
+    if reset:
+        # Boot to the post-BIOS (or BIOS) entry point.
+        reset_fn()
     # Live core plus the buffer it renders into.
     return core, image
 
@@ -224,6 +226,28 @@ class MgbaBackend:
         self._core, self._image = _boot_core(self.rom_path, bios_path, bool(skip_bios))
         # Dict-like memory view for the reward engine.
         self.memory = _MgbaMemoryView(self._core)
+
+    @classmethod
+    def wrap_core(cls, core, image, emulation_speed: float = 0):
+        """Wrap a core that was booted by the link-cable setup."""
+        # Skip __init__ so we do not load a second ROM.
+        backend = cls.__new__(cls)
+        # Headless, matching the normal backend.
+        backend.window = "null"
+        # Tick throttle (0 = unlimited).
+        backend._speed = float(emulation_speed)
+        # No buttons held yet.
+        backend._held = 0
+        # ROM path is unknown for a prebuilt core.
+        backend.rom_path = ""
+        # Live core and the framebuffer it draws into.
+        backend._core = core
+        # Image buffer owned by the caller as well.
+        backend._image = image
+        # Bus reads for this player's memory map.
+        backend.memory = _MgbaMemoryView(core)
+        # Ready for press/tick/savestate.
+        return backend
 
     def _require_core(self):
         """Return the live core or raise if stop() already ran."""

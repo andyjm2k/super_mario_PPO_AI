@@ -110,6 +110,10 @@ class TrainAndLoggingCallback(BaseCallback):
             except Exception:
                 # Ignore full queues / serialization edge cases.
                 pass
+        # Hand the latest policy to link self-play envs when they can take it.
+        if self.n_calls % 256 == 1:
+            # Best-effort: subprocess workers may refuse to pickle the closure.
+            self._bind_self_play_opponent()
         # Continue training unless a stop was requested above.
         return True
 
@@ -126,6 +130,46 @@ class TrainAndLoggingCallback(BaseCallback):
         except Exception:
             # Drop the event if the queue is full.
             pass
+
+    def _bind_self_play_opponent(self) -> None:
+        """Give link-play workers a predict function for player 2."""
+        # No vec env yet.
+        if self.training_env is None or self.model is None:
+            # Nothing to bind.
+            return
+        # A path pickles into subprocess workers. A live closure does not.
+        opponent_path = os.path.join(self.save_path, "opponent_policy.zip")
+        try:
+            # Write the current weights for the other fighter in each match.
+            self.model.save(opponent_path)
+            # Every worker reloads that file on its next step.
+            self.training_env.env_method("set_opponent", opponent_path)
+            # The file is enough.
+            return
+        except Exception:
+            # Fall through to an in-process callable.
+            pass
+        # Local alias so the closure does not need the whole callback.
+        model = self.model
+
+        # Map one observation to one discrete action.
+        def predict(obs):
+            # Stochastic so both sides keep exploring.
+            action, _state = model.predict(obs, deterministic=False)
+            # Numpy scalars and length-1 arrays both become an int.
+            if hasattr(action, "reshape"):
+                # First element of a batched predict.
+                action = action.reshape(-1)[0]
+            # Pack action index.
+            return int(action)
+
+        # Dummy workers accept the closure; subprocess workers usually cannot.
+        try:
+            # set_opponent exists only on SelfPlayEnv.
+            self.training_env.env_method("set_opponent", predict)
+        except Exception:
+            # Lag-1 self-play remains in effect.
+            return
 
     def _maybe_save_best_progress(self):
         """Save an extra checkpoint when mean progress improves."""

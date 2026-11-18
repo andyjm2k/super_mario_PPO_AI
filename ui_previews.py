@@ -6,7 +6,7 @@ from tkinter import ttk
 import numpy as np
 from PIL import Image, ImageTk
 
-from gb_theme import GB_DARK, GB_DARKEST, GB_LIGHTEST
+from gb_theme import GB_DARK, GB_FIELD, GB_LIGHT
 
 # Max preview width in the booth (fits GBA 240 and GBC 160).
 _PREVIEW_MAX_W = 240
@@ -43,9 +43,9 @@ def rebuild_preview_grid(grid_frame, count):
         # Cell frame holds image + caption with thick bezel feel.
         cell = tk.Frame(
             grid_frame,
-            bg=GB_DARK,
-            highlightbackground=GB_DARKEST,
-            highlightthickness=3,
+            bg=GB_FIELD,
+            highlightbackground=GB_DARK,
+            highlightthickness=4,
             bd=0,
             padx=4,
             pady=4,
@@ -56,8 +56,8 @@ def rebuild_preview_grid(grid_frame, count):
         label = tk.Label(
             cell,
             text=f"P{index + 1}",
-            bg=GB_LIGHTEST,
-            fg=GB_DARK,
+            bg=GB_FIELD,
+            fg=GB_LIGHT,
             font=("Courier New", 10, "bold"),
             width=18,
             height=8,

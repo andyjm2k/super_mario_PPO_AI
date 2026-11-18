@@ -127,6 +127,22 @@ class MemoryBank:
             address = parse_address(signal["address"])
             # Return the unsigned byte as a float for the reward engine.
             return float(memory[address])
+        # Little-endian signed or unsigned 16-bit (arcade health bars).
+        if decode in ("s16", "s16le", "u16", "u16le"):
+            # Base address of the halfword.
+            address = parse_address(signal["address"])
+            # Low byte.
+            low = int(memory[address]) & 0xFF
+            # High byte.
+            high = int(memory[address + 1]) & 0xFF
+            # Assemble little-endian.
+            value = low | (high << 8)
+            # Signed health can be -1 before a match starts.
+            if decode.startswith("s") and value >= 0x8000:
+                # Two's complement.
+                value -= 0x10000
+            # Float for the reward engine.
+            return float(value)
         # Progress tile mapped onto 0-100 percent.
         if decode == "tile_percent":
             # Progress tile address.

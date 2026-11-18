@@ -2,7 +2,7 @@
 
 import tkinter as tk
 
-from gb_theme import GB_CREAM, GB_DARKEST, GB_LIGHTEST
+from gb_theme import GB_CREAM, GB_DARK, GB_LIGHTEST
 
 
 # Explanations for TRAIN-tab settings.
@@ -71,7 +71,22 @@ TRAIN_TOOLTIPS = {
     "SHOW LIVE SCREENS": (
         "Stream live RGB frames from workers into the UI.\n"
         "Useful for watching agents, but costs CPU.\n"
-        "Turn off for maximum training throughput."
+        "Turn off for maximum training throughput.\n"
+        "Self-play shows both linked GBAs side by side."
+    ),
+    "SELF-PLAY LINK": (
+        "Train by playing a second copy of the same policy over a local GBA link cable.\n"
+        "mGBA only, and the pack must set link_play (Street Fighter does).\n"
+        "Each environment is two GBAs. Player 2 uses the latest policy when the\n"
+        "worker can accept it; otherwise it repeats the previous action.\n"
+        "Use fewer PARALLEL ENVS. The savestate should already be in a link match."
+    ),
+    "P1 VS P2 MARL": (
+        "Street Fighter on MAME. Both fighters act from the same policy, and each\n"
+        "episode stores one side's return so both learn. Turn this on, then save a\n"
+        "round with: python tools/save_mame_state.py --game sfiii3n --name versus_start\n"
+        "F5 writes games/sfiii3n/states/versus_start.sta and training starts there.\n"
+        "Player 1: arrows, QWE punches, ASD kicks. Player 2: IJKL, UOP punches, NM, kicks."
     ),
     "RESUME": (
         "Optional path to a previous .zip checkpoint.\n"
@@ -217,9 +232,10 @@ class HoverTooltip:
             text=self.text,
             justify=tk.LEFT,
             background=GB_CREAM,
-            foreground=GB_DARKEST,
+            foreground=GB_LIGHTEST,
             relief=tk.SOLID,
             borderwidth=2,
+            highlightbackground=GB_DARK,
             font=("Courier New", 8),
             padx=8,
             pady=6,

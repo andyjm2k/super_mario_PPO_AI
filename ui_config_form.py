@@ -207,6 +207,30 @@ def build_config_form(
     # Tooltip for live screens.
     attach_tooltip(show_btn, TRAIN_TOOLTIPS["SHOW LIVE SCREENS"])
     row += 1
+    # Link-cable self-play toggle (mGBA only).
+    link_btn = ttk.Checkbutton(
+        config_frame,
+        text="SELF-PLAY LINK",
+        variable=vars_map["self_play"],
+        style="GB.TCheckbutton",
+    )
+    # Place the self-play toggle under live screens.
+    link_btn.grid(row=row, column=0, columnspan=2, sticky="w", pady=4)
+    # Explain the cable and that both sides use the policy.
+    attach_tooltip(link_btn, TRAIN_TOOLTIPS["SELF-PLAY LINK"])
+    row += 1
+    # MAME two-player learning toggle.
+    marl_btn = ttk.Checkbutton(
+        config_frame,
+        text="P1 VS P2 MARL",
+        variable=vars_map["marl"],
+        style="GB.TCheckbutton",
+    )
+    # Place it under the link toggle.
+    marl_btn.grid(row=row, column=0, columnspan=2, sticky="w", pady=4)
+    # Explain the shared policy and the .sta start state.
+    attach_tooltip(marl_btn, TRAIN_TOOLTIPS["P1 VS P2 MARL"])
+    row += 1
     # Resume path.
     add_row(
         row,

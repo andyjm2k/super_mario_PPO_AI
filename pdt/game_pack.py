@@ -17,6 +17,42 @@ from pdt.reward_engine import RewardSpec
 DEFAULT_GAMES_ROOT = "games"
 
 
+def _is_link_half(path: str) -> bool:
+    """True for ``*_p1.mgba_state`` / ``*_p2.mgba_state`` link-cable saves."""
+    # Compare the file name only.
+    base = os.path.basename(path).lower()
+    # Either side of a pair saved by the link setup tool.
+    return base.endswith("_p1.mgba_state") or base.endswith("_p2.mgba_state")
+
+
+def discover_link_pairs(states_dir: str) -> List[tuple]:
+    """Return ``(p1_path, p2_path)`` pairs saved by the link setup tool."""
+    # No folder yet.
+    if not os.path.isdir(states_dir):
+        # Nothing to load.
+        return []
+    # Accumulate complete pairs only.
+    pairs = []
+    # Walk the states directory.
+    for name in sorted(os.listdir(states_dir)):
+        # Only the player-1 half starts a pair.
+        if not name.lower().endswith("_p1.mgba_state"):
+            # Skip solo states and player-2 files.
+            continue
+        # Player 1 absolute path.
+        p1_path = os.path.normpath(os.path.join(states_dir, name))
+        # Matching player 2 name shares the stem.
+        stem = name[: -len("_p1.mgba_state")]
+        # Player 2 path beside player 1.
+        p2_path = os.path.normpath(os.path.join(states_dir, stem + "_p2.mgba_state"))
+        # Both files must exist.
+        if os.path.isfile(p2_path):
+            # One linked match.
+            pairs.append((p1_path, p2_path))
+    # Stable order.
+    return pairs
+
+
 @dataclass
 class GamePack:
     """Resolved paths and metadata for one trainable PyBoy game."""
@@ -68,6 +104,8 @@ class GamePack:
             paths.extend(glob.glob(pattern))
         # Sort for stable curricula / UI lists.
         paths = sorted({os.path.normpath(path) for path in paths})
+        # Link halves are loaded as a pair by self-play, not as solo starts.
+        paths = [path for path in paths if not _is_link_half(path)]
         # Allow ROM-boot episodes when the pack opts in and no snapshots exist.
         if not paths and self.allow_boot_start:
             # Sentinel consumed by emulator backends.
@@ -87,6 +125,10 @@ class GamePack:
         if engine in ("mgba", "libmgba", "lib_mgba"):
             # Written by tools/save_mgba_state.py.
             return [".mgba_state"]
+        # MAME packs use the snapshot written by tools/save_mame_state.py.
+        if engine in ("mame", "mametoolkit"):
+            # One file holds both players, because they share a board.
+            return [".sta"]
         # PyBoyAdvance and any other GBA id.
         return [".state", ".pba_state"]
 
@@ -119,6 +161,12 @@ class GamePack:
         """Allow training from ROM boot when no state files exist."""
         # Opt-in so accidental empty states folders still fail loudly.
         return bool(self.meta.get("allow_boot_start", False))
+
+    @property
+    def link_play(self) -> bool:
+        """Whether this pack can train over a local GBA link cable."""
+        # Opt-in: only games with a link-versus mode should set this.
+        return bool(self.meta.get("link_play", False))
 
     @property
     def prefer_boot_start(self) -> bool:
@@ -189,6 +237,12 @@ def list_game_ids(games_root: str = DEFAULT_GAMES_ROOT) -> List[str]:
             rom_rel = meta.get("rom", "rom/game.gbc")
             # Absolute ROM path.
             rom_path = os.path.normpath(os.path.join(folder, rom_rel))
+            # MAME packs point at a roms folder, not one cartridge file.
+            if str(meta.get("emulator", "")).lower() in ("mame", "mametoolkit"):
+                # Show the arcade pack even before the zip is copied in.
+                ids.append(name)
+                # Next folder.
+                continue
             # Skip templates until the ROM is present.
             if not os.path.isfile(rom_path):
                 # Keep scaffolds out of the UI dropdown.
@@ -236,8 +290,12 @@ def load_game_pack(game_id: str, games_root: str = DEFAULT_GAMES_ROOT) -> GamePa
     rewards_rel = meta.get("rewards_file", "rewards.json")
     # Absolute rewards path.
     rewards_path = os.path.normpath(os.path.join(root_dir, rewards_rel))
-    # Require the ROM to exist before training.
-    if not os.path.isfile(rom_path):
+    # MAME reads a roms directory (sfiii3n.zip inside it), not one GBA file.
+    if str(meta.get("emulator", "")).lower() in ("mame", "mametoolkit"):
+        # Create the folder so the pack loads before the zip is added.
+        os.makedirs(rom_path, exist_ok=True)
+    # Require a cartridge file for the handheld backends.
+    elif not os.path.isfile(rom_path):
         # Point authors at the expected location.
         raise FileNotFoundError(f"ROM not found for game '{resolved_id}': {rom_path}")
     # Require memory + rewards files so packs stay self-contained.

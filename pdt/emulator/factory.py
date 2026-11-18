@@ -23,10 +23,14 @@ def normalize_engine_name(name: str) -> str:
     if key in ("mgba", "libmgba", "lib_mgba"):
         # Canonical mGBA id.
         return "mgba"
+    # Aliases for MAME arcade (both joysticks, one process).
+    if key in ("mame", "mametoolkit", "mame_toolkit"):
+        # Canonical MAME id.
+        return "mame"
     # Unknown engines fail fast.
     raise ValueError(
         f"Unsupported emulator engine '{name}'. "
-        "Use 'pyboy' (GB/GBC), 'pyboy_advance' (GBA), or 'mgba' (GBA live frames)."
+        "Use 'pyboy' (GB/GBC), 'pyboy_advance' (GBA), 'mgba' (GBA), or 'mame' (arcade)."
     )
 
 
@@ -45,6 +49,17 @@ def create_emulator_backend(
     if key == "pyboy":
         # Build the PyBoy adapter.
         return PyBoyBackend(
+            rom_path=rom_path,
+            window=window,
+            emulation_speed=emulation_speed,
+        )
+    # Arcade MAME path (lazy-imports the MAME session inside the backend).
+    if key == "mame":
+        # Import here so packs that never use MAME do not touch it.
+        from pdt.emulator.mame_backend import MameBackend
+
+        # One process, player 1 and player 2.
+        return MameBackend(
             rom_path=rom_path,
             window=window,
             emulation_speed=emulation_speed,

@@ -62,6 +62,10 @@ class TrainingConfig:
     checkpoint_freq: int = 4096
     # Whether to show live agent frames in the training UI.
     show_visuals: bool = True
+    # Link two mGBA instances and let the policy play both sides.
+    self_play: bool = False
+    # MAME P1 vs P2. Both fighters act from the same policy and both returns train it.
+    marl: bool = False
     # Maximum number of agent panes to render in the UI grid.
     visual_agents: int = 4
     # Optional path to resume training from an existing model zip.

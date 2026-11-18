@@ -1,0 +1,35 @@
+# Game cartridges, arcade ROM sets, BIOS dumps, and CHD/CD images.
+# The empty rom/ folders stay in git via .gitkeep.
+games/**/rom/**
+!games/**/rom/.gitkeep
+
+# Same kinds of files if they are dropped outside a rom/ folder.
+*.gba
+*.gbc
+*.gb
+*.nes
+*.sfc
+*.smc
+*.chd
+*.nds
+*.gen
+*.sms
+*.32x
+*.pce
+*bios*.bin
+
+# Local emulator install, checkpoints, and logs.
+venv/
+mame/
+logs/
+train/
+nvram/
+cfg/
+old/
+__pycache__/
+*.pyc
+
+# Savestates stay on this machine.
+*.sta
+*.mgba_state
+*.ram

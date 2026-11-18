@@ -3,7 +3,7 @@
 import tkinter as tk
 from tkinter import ttk
 
-from gb_theme import GB_DARKEST, GB_LIGHTEST
+from gb_theme import GB_FIELD, GB_LIGHT
 from stats_writer import format_stat_value
 
 
@@ -98,8 +98,8 @@ class StatsBoard:
             value_label = tk.Label(
                 panel,
                 textvariable=value_var,
-                bg=GB_LIGHTEST,
-                fg=GB_DARKEST,
+                bg=GB_FIELD,
+                fg=GB_LIGHT,
                 font=("Courier New", 9, "bold"),
                 relief=tk.SOLID,
                 bd=2,

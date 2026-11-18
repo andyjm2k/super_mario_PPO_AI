@@ -12,6 +12,7 @@ Controls (same as tools/save_pba_state.py):
 
 Example:
   python tools/save_mgba_state.py --game street_fighter3 --name versus_start
+  python tools/save_mgba_state.py --game street_fighter3 --name versus_link --link
 """
 
 from __future__ import annotations
@@ -88,6 +89,12 @@ def _parse_args():
         "--save-on-exit",
         action="store_true",
         help="Write a savestate when quitting with Esc / window close",
+    )
+    # Two linked GBAs so a versus match can be saved as a pair.
+    parser.add_argument(
+        "--link",
+        action="store_true",
+        help="Two-player link cable. F5 saves states/<name>_p1 and _p2",
     )
     # Parsed namespace.
     return parser.parse_args()
@@ -205,6 +212,24 @@ def main():
     """Open an interactive window and save a full mGBA state on F5."""
     # Parse CLI.
     args = _parse_args()
+    # MAME packs save one shared .sta from the arcade board.
+    pack = load_game_pack(args.game, games_root=args.games_root)
+    # Route arcade packs to the MAME saver.
+    if normalize_engine_name(pack.emulator_engine) == "mame":
+        # Imported here so GBA play does not load the MAME tool.
+        from tools.save_mame_state import run as run_mame_saver
+        # Same --game / --name / --save-on-exit flags.
+        run_mame_saver(args)
+        # Do not open mGBA.
+        return
+    # Two GBAs on a local cable, for saving a link-versus match.
+    if args.link:
+        # Imported here so solo play does not load the link module.
+        from tools.link_setup import run_link_setup
+        # The link tool owns the window and both saves.
+        run_link_setup(args)
+        # Solo path below is for one GBA only.
+        return
     # Load the selected pack.
     pack = load_game_pack(args.game, games_root=args.games_root)
     # Canonical engine id.
@@ -215,7 +240,7 @@ def main():
         raise SystemExit(
             f"Pack '{pack.game_id}' uses emulator '{engine}'. "
             "This tool only saves .mgba_state for mgba packs. "
-            "Use tools/save_pba_state.py for pyboy_advance packs."
+            "Use tools/save_mame_state.py for MAME packs."
         )
     # Boot headless mGBA (raises a build hint if mgba is not installed).
     backend = create_emulator_backend(

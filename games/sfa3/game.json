@@ -1,0 +1,51 @@
+{
+  "id": "sfa3",
+  "name": "Street Fighter Alpha 3",
+  "emulator": "mame",
+  "mame_game": "sfa3",
+  "rom": "rom",
+  "allow_boot_start": true,
+  "prefer_boot_start": false,
+  "opponent": "marl",
+  "state_extensions": [".sta"],
+  "states_dir": "states",
+  "memory_file": "memory.json",
+  "rewards_file": "rewards.json",
+  "obs": {
+    "width": 128,
+    "height": 96,
+    "crop_top": 0
+  },
+  "wait_frames": 3,
+  "boot_actions": [
+    {"player": 1, "button": "coin", "frames": 2},
+    {"player": 1, "button": "coin", "frames": 2},
+    {"player": 2, "button": "coin", "frames": 2},
+    {"player": 2, "button": "coin", "frames": 2},
+    {"player": 1, "button": "start", "frames": 2},
+    {"player": 2, "button": "start", "frames": 2}
+  ],
+  "actions": [
+    {"id": "noop", "buttons": []},
+    {"id": "left", "buttons": ["left"]},
+    {"id": "right", "buttons": ["right"]},
+    {"id": "up", "buttons": ["up"]},
+    {"id": "down", "buttons": ["down"]},
+    {"id": "up_left", "buttons": ["up", "left"]},
+    {"id": "up_right", "buttons": ["up", "right"]},
+    {"id": "down_left", "buttons": ["down", "left"]},
+    {"id": "down_right", "buttons": ["down", "right"]},
+    {"id": "lp", "buttons": ["lp"]},
+    {"id": "mp", "buttons": ["mp"]},
+    {"id": "hp", "buttons": ["hp"]},
+    {"id": "lk", "buttons": ["lk"]},
+    {"id": "mk", "buttons": ["mk"]},
+    {"id": "hk", "buttons": ["hk"]},
+    {"id": "forward_lp", "buttons": ["right", "lp"]},
+    {"id": "forward_mp", "buttons": ["right", "mp"]},
+    {"id": "forward_hp", "buttons": ["right", "hp"]},
+    {"id": "back_lp", "buttons": ["left", "lp"]},
+    {"id": "down_lk", "buttons": ["down", "lk"]},
+    {"id": "down_mk", "buttons": ["down", "mk"]}
+  ]
+}

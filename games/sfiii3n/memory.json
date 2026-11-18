@@ -1,0 +1,31 @@
+{
+  "game_id": "sfiii3n",
+  "description": "Street Fighter III: 3rd Strike (sfiii3n) RAM from MAMEToolkit. Health is a signed 16-bit little-endian value.",
+  "signals": {
+    "P1_HEALTH": {
+      "address": "0x02068D0A",
+      "decode": "s16",
+      "note": "Player 1 health. Full bar is 160. MAMEToolkit healthP1."
+    },
+    "P2_HEALTH": {
+      "address": "0x020691A2",
+      "decode": "s16",
+      "note": "Player 2 health. Full bar is 160. MAMEToolkit healthP2."
+    },
+    "IN_FIGHT": {
+      "address": "0x02011389",
+      "decode": "raw",
+      "note": "Non-zero while a round is being fought. MAMEToolkit fighting flag."
+    },
+    "WINS_P1": {
+      "address": "0x02011383",
+      "decode": "raw",
+      "note": "Rounds won by player 1. MAMEToolkit winsP1."
+    },
+    "WINS_P2": {
+      "address": "0x02011385",
+      "decode": "raw",
+      "note": "Rounds won by player 2. MAMEToolkit winsP2."
+    }
+  }
+}

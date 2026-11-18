@@ -104,7 +104,7 @@ def train_model(config: TrainingConfig = None, frame_queue=None, stop_event=None
     # Announce parallelization settings.
     print(
         f"Algorithm={config.algorithm} n_envs={config.n_envs} "
-        f"vec={config.vec_env_type}"
+        f"vec={config.vec_env_type} marl={config.marl}"
     )
     # Build the vectorized PyBoy environments (skip then stack).
     env = build_vec_env(config)

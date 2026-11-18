@@ -80,6 +80,8 @@ class PyBoyEnv(Env):
         self.reward_engine = DeclarativeRewardEngine(loaded_rewards, self.memory_bank)
         # Window string remembered for recycle.
         self._window = window
+        # Previous action buttons, replayed on player 2 for arcade self-play.
+        self._lag_buttons: List[str] = []
         # Boot the selected emulator backend.
         self.emu = self._create_backend()
         # Backwards-compatible alias used by older tests / callbacks.
@@ -104,8 +106,8 @@ class PyBoyEnv(Env):
 
     def _create_backend(self):
         """Construct a fresh emulator backend for this pack."""
-        # Delegate to the factory (PyBoy or PyBoyAdvance).
-        return create_emulator_backend(
+        # Delegate to the factory (PyBoy, mGBA, or MAME).
+        backend = create_emulator_backend(
             engine=self.engine,
             rom_path=self.rom_path,
             window=self._window,
@@ -113,6 +115,20 @@ class PyBoyEnv(Env):
             bios_path=self.game_pack.bios_path,
             skip_bios=self.game_pack.skip_bios,
         )
+        # Arcade backends need the pack's RAM map before the first tick.
+        if hasattr(backend, "bind_memory_bank"):
+            # Register health / round addresses with the MAME session.
+            backend.bind_memory_bank(self.memory_bank)
+        # Arcade driver name, when the pack names one.
+        if hasattr(backend, "game_id") and self.game_pack.meta.get("mame_game"):
+            # sfiii3n rather than the folder id.
+            backend.game_id = str(self.game_pack.meta.get("mame_game"))
+        # Optional insert-coin sequence from game.json.
+        if hasattr(backend, "set_boot_actions"):
+            # Hand the list through; empty means no extra coins.
+            backend.set_boot_actions(list(self.game_pack.meta.get("boot_actions", [])))
+        # The constructed backend.
+        return backend
 
     def _resolve_states(self, state_paths):
         """Resolve start states from an explicit list or the pack folder."""
@@ -147,6 +163,8 @@ class PyBoyEnv(Env):
         self.active_state = None
         # Clear last info.
         self.last_info = {}
+        # Arcade self-play should not reuse the previous episode's buttons.
+        self._lag_buttons = []
 
     def step(self, action):
         """Advance one low-level action and return a Gymnasium transition."""
@@ -264,11 +282,26 @@ class PyBoyEnv(Env):
         # Clamp to a valid action index.
         index = int(action) % len(self.action_maps)
         # Fetch the button list for this action.
-        buttons = list(self.action_maps[index].get("buttons", []))
-        # Press each configured button.
-        for button in buttons:
-            # Hold the named button via the backend.
-            self.emu.press_button(str(button))
+        buttons = [str(button) for button in self.action_maps[index].get("buttons", [])]
+        # Arcade packs have two joysticks in one process.
+        if hasattr(self.emu, "press_player"):
+            # Learner is player 1.
+            for button in buttons:
+                # Hold each P1 button.
+                self.emu.press_player(1, button)
+            # Lag-1 self-play: player 2 repeats the learner's previous action.
+            if str(self.game_pack.meta.get("opponent", "")) == "lag1":
+                # Previous combo, empty on the first step.
+                for button in self._lag_buttons:
+                    # Hold the same names on player 2.
+                    self.emu.press_player(2, button)
+                # Remember this step for the next one.
+                self._lag_buttons = list(buttons)
+        else:
+            # Handheld backends have one pad.
+            for button in buttons:
+                # Hold the named button via the backend.
+                self.emu.press_button(button)
         # Advance while holding.
         self.emu.tick(count=self.wait_frames)
 

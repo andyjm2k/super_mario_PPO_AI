@@ -222,8 +222,20 @@ class DeclarativeRewardEngine:
                     current = float(self.memory_bank.read(memory, rule["signal"]))
                     # Target sentinel value.
                     target = float(rule.get("equals", 0))
-                    # Fire when equal.
-                    if current == target:
+                    # Optional gate so a zero bar on the title screen is not a KO.
+                    gate_name = rule.get("require_signal")
+                    # Assume the sentinel matches until a gate says otherwise.
+                    gate_open = True
+                    # Packs name a second signal, such as the round clock.
+                    if gate_name:
+                        # Current gate value.
+                        gate_value = float(self.memory_bank.read(memory, str(gate_name)))
+                        # Minimum that counts as "in a round".
+                        gate_min = float(rule.get("require_min", 1))
+                        # Closed while the clock or fight flag is still zero.
+                        gate_open = gate_value >= gate_min
+                    # Fire when equal and the gate, if any, is open.
+                    if current == target and gate_open:
                         # Terminal bonus / penalty.
                         value = float(rule.get("reward", 0.0))
                         # Optionally replace the whole step reward.
