@@ -6,7 +6,7 @@ from tkinter import ttk
 import numpy as np
 from PIL import Image, ImageTk
 
-from gb_theme import GB_DARK, GB_FIELD, GB_LIGHT
+from gb_theme import GB_DARKEST, GB_FIELD, GB_LIGHT, graffiti_bezel
 
 # Max preview width in the booth (fits GBA 240 and GBC 160).
 _PREVIEW_MAX_W = 240
@@ -40,21 +40,15 @@ def rebuild_preview_grid(grid_frame, count):
     cols = max(1, int(np.ceil(np.sqrt(count))))
     # Create one pane per visible agent.
     for index in range(count):
-        # Cell frame holds image + caption with thick bezel feel.
-        cell = tk.Frame(
-            grid_frame,
-            bg=GB_FIELD,
-            highlightbackground=GB_DARK,
-            highlightthickness=4,
-            bd=0,
-            padx=4,
-            pady=4,
-        )
-        # Place the cell in the grid.
-        cell.grid(row=index // cols, column=index % cols, sticky="nsew", padx=4, pady=4)
-        # Image label starts blank on cream screen glass.
+        # Graffiti bezel: magenta, cyan, then yellow.
+        shell, inner = graffiti_bezel(grid_frame)
+        # Place the bezel in the grid.
+        shell.grid(row=index // cols, column=index % cols, sticky="nsew", padx=6, pady=6)
+        # Pad the glass inside the paint.
+        inner.configure(bg=GB_DARKEST)
+        # Image label starts blank on the cabinet glass.
         label = tk.Label(
-            cell,
+            inner,
             text=f"P{index + 1}",
             bg=GB_FIELD,
             fg=GB_LIGHT,
@@ -62,10 +56,10 @@ def rebuild_preview_grid(grid_frame, count):
             width=18,
             height=8,
         )
-        # Pack the image label.
-        label.pack()
+        # Pack the image label inside the bezel.
+        label.pack(padx=8, pady=(8, 2))
         # Caption shows progress / reward once training starts.
-        caption = ttk.Label(cell, text="WAITING...", style="Caption.TLabel")
+        caption = ttk.Label(inner, text="WAITING...", style="Booth.TLabel")
         # Pack the caption under the image.
         caption.pack()
         # Keep references for later updates.

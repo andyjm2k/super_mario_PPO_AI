@@ -238,6 +238,17 @@ class MameVersusEnv(Env):
             # Player 1 or player 2 on the same board.
             self.emu.press_player(int(player), name)
 
+    def _booth_frame(self):
+        """Live-glass picture. Prefer the copy that keeps the arcade aspect."""
+        # The MAME backend stores a letterboxed frame beside the policy frame.
+        getter = getattr(self.emu, "get_display_frame", None)
+        # Older backends only have the policy picture.
+        if not callable(getter):
+            # Fall back.
+            getter = self.emu.get_rgb_frame
+        # Copy so the booth can hold it after the next tick.
+        return np.array(getter(), dtype=np.uint8, copy=True)
+
     def _obs_for(self, side: int):
         """Grayscale view with that fighter on the left."""
         # Orient then crop.
@@ -330,7 +341,7 @@ class MameVersusEnv(Env):
         # Episode length.
         info["episode_length"] = self.episode_length
         # Booth shows the real screen, not the flipped learner view.
-        self.last_frame = np.array(self.emu.get_rgb_frame(), dtype=np.uint8, copy=True)
+        self.last_frame = self._booth_frame()
         # Cache for the training callback.
         self.last_info = info
         # Learning fighter's view.
@@ -368,7 +379,7 @@ class MameVersusEnv(Env):
         # Player 2's baselines are independent.
         self.reward_p2.reset(self.emu.memory)
         # Unflipped picture.
-        self.last_frame = np.array(self.emu.get_rgb_frame(), dtype=np.uint8, copy=True)
+        self.last_frame = self._booth_frame()
         # Info for the first observation.
         info = {
             "start_state": self.active_state,

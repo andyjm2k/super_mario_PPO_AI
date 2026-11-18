@@ -124,6 +124,8 @@ class MameBackend:
         self._boot_actions: List[dict] = []
         # Last RGB frame.
         self._frame = np.zeros((224, 384, 3), dtype=np.uint8)
+        # Booth picture. None until a captured frame arrives.
+        self._display = None
 
     def bind_memory_bank(self, memory_bank) -> None:
         """Register the pack's RAM watches."""
@@ -241,8 +243,14 @@ class MameBackend:
         frame, values = self._session.step(list(self._held), capture=True, count=frames)
         # Keep the latest picture when this tick captured one.
         if frame is not None:
-            # Store it for the policy and the booth.
+            # Store it for the policy. The booth uses the unstretched copy.
             self._frame = np.asarray(frame, dtype=np.uint8)
+        # The console keeps a letterboxed picture for the live glass.
+        display = getattr(self._session, "display_frame", None)
+        # Only replace the booth picture when this tick captured one.
+        if display is not None:
+            # Copy so a later session buffer cannot change the glass.
+            self._display = np.asarray(display, dtype=np.uint8)
         # Scatter watched values into the byte view.
         for address, width in self._watches:
             # Missing watches stay at the previous byte.
@@ -251,9 +259,16 @@ class MameBackend:
                 self.memory.write_unit(address, values[address], width)
 
     def get_rgb_frame(self):
-        """Return the latest RGB frame."""
+        """Return the latest RGB frame the policy was trained on."""
         # Copy so callers can hold it.
         return np.array(self._frame, dtype=np.uint8, copy=True)
+
+    def get_display_frame(self):
+        """Return the booth picture, which keeps the arcade aspect ratio."""
+        # Fall back to the policy frame before the first captured tick.
+        source = self._display if self._display is not None else self._frame
+        # Copy so the UI can hold it.
+        return np.array(source, dtype=np.uint8, copy=True)
 
     def stop(self) -> None:
         """Close the MAME process."""

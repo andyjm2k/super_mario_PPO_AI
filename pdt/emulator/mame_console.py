@@ -18,7 +18,7 @@ from typing import Dict, Optional, Sequence, Tuple
 
 import numpy as np
 
-from pdt.emulator.mame_frame import bgra_to_rgb, decode_rgb_hex, read_exact
+from pdt.emulator.mame_frame import bgra_to_rgb, decode_rgb_hex, display_bgra, read_exact
 from pdt.emulator.mame_script import build_boot_script
 
 # One held control: MAME port tag, then the field name.
@@ -135,6 +135,8 @@ class MameConsoleSession:
         self._err_path = os.path.join(self._dir, "mame_err.txt")
         # No process until launch.
         self._proc = None
+        # Booth picture. None until a captured frame arrives.
+        self.display_frame = None
         # Stderr handle owned by this session.
         self._err_handle = None
         # Both sides start empty so the first frame has a file to open.
@@ -166,8 +168,10 @@ class MameConsoleSession:
         frame = None
         # Raw screen bytes came after the header.
         if blob:
-            # Shrink BGRA to the policy image.
+            # Shrink BGRA to the policy image. This stretch stays stable for training.
             frame = bgra_to_rgb(blob, width, height)
+            # Separate booth picture so the glass is not squashed to 4:3.
+            self.display_frame = display_bgra(blob, width, height)
         # Older hex payload, kept for tests.
         elif isinstance(picture, str) and picture != "pic":
             # Decode the downscaled BGR hex.
